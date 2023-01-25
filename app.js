@@ -15,31 +15,31 @@ delete -> borrar */
 /* const queryId=(id)=>document.getElementById(id) */ //me trae en la variable queryId a todos los id del html y luego para llamarlo escribo queryId(contenedor)
 
 const URLbase='https://rickandmortyapi.com/api/'
-let endPointPersonajes='character?page=1'
-let paginaPersonajes=1
+let endPointPersonajes='character'
 
 const contenedor=document.getElementById('contenedor')
-const anterior=document.getElementById('anterior')
-const siguiente=document.getElementById('siguiente')
+const btnAnterior=document.getElementById('btnAnterior')
+const btnSiguiente=document.getElementById('btnSiguiente')
+let linkSig=''
+let linkAnt=''
 
 let buscar=document.getElementById('buscar')
 let nombre=document.getElementById('nombre')
 
 //guardamos el fetch en una funcion para que no se ejecute cada vez que inicia la pagina
 const getPersonajes = (pagina) => {
-    console.log(`${URLbase}${pagina}`)
-    fetch(`${URLbase}${pagina}`)
-    .then(response=>response.json())
-    .then(data=>mostrarPersonajes(data.results))
-      
+    console.log(pagina)
+    fetch(pagina)
+    .then(response=>response.json()) //lo traemos a json
+    .then(data=>mostrarPersonajes(data))
     .catch(error=>console.log(error)) //chequea errores que provienen de la api
     .finally(()=>console.log('finalizo la conexion a la api')) //da por finalizado el consumo de la api
 }
 
-getPersonajes(endPointPersonajes)
+getPersonajes(URLbase+endPointPersonajes)
 
-
-const mostrarPersonajes = (personajes) => {
+const mostrarPersonajes = (data) => {
+    let personajes = data.results
     contenedor.innerHTML=''
     for(let personaje of personajes){        
         contenedor.innerHTML+=`
@@ -50,30 +50,23 @@ const mostrarPersonajes = (personajes) => {
           <h5 class="card-title">${personaje.name}</h5>
           <p class="card-text">${personaje.status}</p>
           <p class="card-text">${personaje.gender}</p>
-         
           <a href="#" class="btn btn-primary">Go somewhere</a>
         </div>
       </div>
       </div>`
     }
+    linkSig = data.info.next
+    linkAnt = data.info.prev
 }
 
-siguiente.addEventListener('click', () =>{
-  if (paginaPersonajes<42){
-    paginaPersonajes++
-    endPointPersonajes='character?page='+paginaPersonajes  
-    getPersonajes(endPointPersonajes)  
-  }
+btnSiguiente.addEventListener('click', () =>{
+  getPersonajes(linkSig)  
 })
 
-anterior.addEventListener('click', () =>{
-  if(paginaPersonajes>1){
-    paginaPersonajes--
-    endPointPersonajes='character?page='+paginaPersonajes  
-    getPersonajes(endPointPersonajes)
-  }
+btnAnterior.addEventListener('click', () =>{
+  getPersonajes(linkAnt)
 })
 
 buscar.addEventListener('click', () =>{
-  getPersonajes(`character?name=${nombre.value}`)
+  getPersonajes(`${URLbase}character?name=${nombre.value}`)
 })
